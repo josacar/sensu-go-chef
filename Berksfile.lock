@@ -1,0 +1,17 @@
+DEPENDENCIES
+  sensu-custom
+    path: site-cookbooks/sensu-custom
+  sensu-go
+    git: https://github.com/sensu/sensu-go-chef
+    revision: 6948c8e927864b2ab743251324778581bb875ef1
+
+GRAPH
+  packagecloud (1.0.1)
+  sensu-custom (0.1.0)
+    sensu-go (>= 0.0.0)
+  sensu-go (0.2.0)
+    packagecloud (>= 0.0.0)
+    seven_zip (>= 0.0.0)
+  seven_zip (3.1.2)
+    windows (>= 0.0.0)
+  windows (7.0.0)
