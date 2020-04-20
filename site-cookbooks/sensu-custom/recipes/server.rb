@@ -16,7 +16,7 @@ sensu_agent 'default' do
     'name': node['hostname'],
     'namespace': 'default',
     'backend-url': ['ws://127.0.0.1:8081'],
-    'subscriptions': %w[linux]
+    'subscriptions': %w[linux proxy]
   )
 end
 
@@ -131,11 +131,23 @@ sensu_mutator 'example-mutator' do
   timeout 60
 end
 
-sensu_entity 'example-entity' do
-  subscriptions ['example-entity']
+# sensu_entity 'proxy' do
+#   subscriptions ['proxy']
+#   entity_class 'proxy'
+#   labels(environment: 'production', region: 'us-west-2')
+#   annotations(runbook: 'https://www.xkcd.com/378/')
+# end
+
+sensu_entity 'packagecloud-site' do
+  # subscriptions ['proxy']
   entity_class 'proxy'
-  labels(environment: 'production', region: 'us-west-2')
-  annotations(runbook: 'https://www.xkcd.com/378/')
+  labels(
+    proxy_type: 'website',
+    url: 'https://packagecloud.io'
+  )
+  annotations(
+    runbook: 'https://www.xkcd.com/378/'
+  )
 end
 
 sensu_check 'disk' do
@@ -143,9 +155,41 @@ sensu_check 'disk' do
   interval 60
   subscriptions %w[linux]
   handlers %w[slack tcp_handler udp_handler]
-  handlers %w[pagerduty splunk]
   publish true
   ttl 100
   runtime_assets %w[sensu-ruby-runtime sensu-plugins-disk-checks]
+  action :create
+end
+
+
+sensu_check 'sensu_site' do
+  command 'check-http.rb -u https://sensu.io'
+  interval 60
+  subscriptions %w[proxy]
+  handlers %w[slack tcp_handler udp_handler]
+  publish true
+  round_robin true
+  ttl 100
+  runtime_assets %w[sensu-ruby-runtime sensu-plugins-http]
+  action :create
+end
+
+sensu_check 'website_entities_http' do
+  command 'check-http.rb -u {{ .labels.url }}'
+  interval 60
+  subscriptions %w[proxy]
+  handlers %w[slack tcp_handler udp_handler]
+  publish true
+  round_robin true
+  ttl 100
+  proxy_requests(
+    {
+      'entity_attributes' => [
+        "entity.entity_class == 'proxy'",
+        "entity.labels.proxy_type == 'website'"
+      ]
+    }
+  )
+  runtime_assets %w[sensu-ruby-runtime sensu-plugins-http]
   action :create
 end

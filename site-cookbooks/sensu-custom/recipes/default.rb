@@ -1,3 +1,3 @@
 apt_update 'default'
 
-package 'vim'
+package %w[vim htop]
