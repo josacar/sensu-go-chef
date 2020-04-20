@@ -3,6 +3,10 @@ include_recipe 'sensu-custom::default'
 sensu_backend 'default' do
   action %i[install init]
 
+  # distribution 'source'
+  # repo ''
+  # gpgkey ''
+
   config('state-dir': '/var/lib/sensu/sensu-backend')
 
   username 'admin'
@@ -150,8 +154,14 @@ sensu_entity 'packagecloud-site' do
   )
 end
 
+sensu_hook 'df_h' do
+  command 'df -hx /'
+  timeout 60
+  stdin false
+end
+
 sensu_check 'disk' do
-  command 'check-disk-usage.rb -t xfs -w 95 -c 99'
+  command 'check-disk-usage.rb -t ext4 -w 3 -c 4'
   interval 60
   subscriptions %w[linux]
   handlers %w[slack tcp_handler udp_handler]
@@ -159,8 +169,17 @@ sensu_check 'disk' do
   ttl 100
   runtime_assets %w[sensu-ruby-runtime sensu-plugins-disk-checks]
   action :create
-end
 
+  check_hooks(
+    [
+      {
+        "warning": [
+          'df_h'
+        ]
+      }
+    ]
+  )
+end
 
 sensu_check 'sensu_site' do
   command 'check-http.rb -u https://sensu.io'

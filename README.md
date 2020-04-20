@@ -9,10 +9,19 @@ Ports used in server:
 8081 - WebSocket API used by Sensu agents
 
 
+## Hooks
+
+```
+sensuctl event info sensu-server disk --format yaml
+```
+
 ## Docs
 
 https://docs.sensu.io/sensu-go/latest/installation/install-sensu/
 https://docs.sensu.io/sensu-go/latest/reference/agent/#communication-between-the-agent-and-backend
+https://docs.sensu.io/sensu-go/latest/installation/auth/
+https://docs.sensu.io/sensu-go/latest/reference/hooks/
+https://docs.sensu.io/sensu-go/latest/reference/checks/#check-hooks-attribute
 https://docs.sensu.io/sensu-go/latest/guides/monitor-server-resources/
 https://docs.sensu.io/sensu-go/latest/guides/monitor-external-resources/
 https://docs.sensu.io/sensu-go/latest/guides/install-check-executables-with-assets/
